@@ -13,6 +13,7 @@ const spinner = document.getElementById("spinner");
 
 let currentQuestions = [];
 let currentTopic = "";
+let currentQuizId = null;
 
 async function fetchJSON(url, options) {
   const res = await fetch(url, options);
@@ -116,6 +117,7 @@ startBtn.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topic }),
     });
+    currentQuizId = data.quiz_id;
     currentQuestions = data.questions;
     renderQuestions(currentQuestions);
     quizForm.style.display = "block";
@@ -144,7 +146,7 @@ quizForm.addEventListener("submit", async (e) => {
     const data = await fetchJSON(`${API}/score`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic: currentTopic, answers, questions: currentQuestions }),
+      body: JSON.stringify({ quiz_id: currentQuizId, answers }),
     });
     showResults(data.results, data.score, data.total);
   } catch (e) {
@@ -160,6 +162,34 @@ retryBtn.addEventListener("click", () => {
   scoreBanner.style.display = "none";
   clearError();
   topicInput.focus();
+});
+
+const historyBtn = document.getElementById("history-btn");
+const historySection = document.getElementById("history-section");
+const historyList = document.getElementById("history-list");
+
+historyBtn.addEventListener("click", async () => {
+  if (historySection.style.display === "block") {
+    historySection.style.display = "none";
+    return;
+  }
+  try {
+    const data = await fetchJSON(`${API}/history`);
+    if (data.history.length === 0) {
+      historyList.innerHTML = "<li>No quizzes taken yet.</li>";
+    } else {
+      historyList.innerHTML = data.history
+        .map((h) => {
+          const date = h.created_at ? h.created_at.split("T")[0] : "—";
+          const scoreStr = h.score != null ? `${h.score}/${h.total}` : "not attempted";
+          return `<li><strong>${h.topic}</strong> &mdash; ${scoreStr} &mdash; ${date}</li>`;
+        })
+        .join("");
+    }
+    historySection.style.display = "block";
+  } catch (e) {
+    showError(e.message);
+  }
 });
 
 loadTopics();

@@ -83,6 +83,22 @@ The tradeoff: it's keyed by topic string, lives only in process memory, and is l
 
 ---
 
+## Persistence — SQLite
+
+Quiz and attempt data is stored in a local SQLite database (`backend/quiz_history.db`), created automatically on first run via `backend/db.py`.
+
+**Schema:**
+- `quizzes` — `id`, `topic`, `questions_json`, `answer_key_json`, `created_at`
+- `attempts` — `id`, `quiz_id`, `answers_json`, `score`, `total`, `submitted_at`
+
+**Flow:** `/generate-quiz` saves the new quiz and returns a `quiz_id` to the client instead of relying on the topic string as a lookup key. `/score` looks up the answer key by `quiz_id`, scores the submission, and saves the attempt. A `GET /history` endpoint lists past quizzes with their most recent score.
+
+This replaces the earlier in-memory `_answer_cache` approach and fixes the concurrency issue it had — two users generating a quiz on the same topic at the same time now get distinct `quiz_id`s instead of overwriting the same cache key. Data also survives a server restart, since SQLite writes to disk.
+
+SQLite (not Postgres) was chosen because it needs zero setup — no separate database server to run for a take-home reviewer to evaluate this. The schema and queries are simple enough that swapping to Postgres later would mean changing the connection string and one or two SQL dialect quirks, not a redesign.
+
+--
+
 ## Two-stage generation
 
 Explanations are only generated after a quiz is submitted, not upfront, there is no point spending tokens explaining questions a user might never finish. When they are needed, all 5 are requested in a single batched call rather than 5 separate ones, which keeps both latency and cost down.

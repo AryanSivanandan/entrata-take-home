@@ -116,6 +116,17 @@
       margin: .5rem auto;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    #history-btn { margin-top: 1rem; background: #555; font-size: .85rem; }
+    #history-btn:hover { background: #333; }
+    #history-section { margin-top: 1rem; }
+    #history-section h2 { margin-bottom: .5rem; }
+    #history-list { list-style: none; padding: 0; }
+    #history-list li {
+      padding: .4rem .6rem;
+      border-bottom: 1px solid #eee;
+      font-size: .9rem;
+    }
   </style>
 </head>
 <body>
@@ -138,6 +149,11 @@
       <button type="submit" id="submit-btn">Submit Answers</button>
     </form>
     <button id="retry-btn" style="display:none; margin-top:1rem">Try Again</button>
+    <button id="history-btn">View Past Quizzes</button>
+    <div id="history-section" style="display:none">
+      <h2>Past Quizzes</h2>
+      <ul id="history-list"></ul>
+    </div>
   </div>
 
   <script src="app.js"></script>

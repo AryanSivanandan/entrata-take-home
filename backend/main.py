@@ -1,15 +1,12 @@
 from dotenv import load_dotenv
-
 load_dotenv()
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
-from quiz_generator import check_answers, generate_quiz, get_explanations, get_topics
+from quiz_generator import generate_quiz, get_explanations, get_topics
+import db
 
 app = FastAPI(title="Quiz Builder")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "null"],
@@ -17,43 +14,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class GenerateQuizRequest(BaseModel):
     topic: str
 
-
 class ScoreRequest(BaseModel):
-    topic: str
-    questions: list[dict]
+    quiz_id: int
     answers: dict[int, int]
-
 
 @app.get("/topics")
 def list_topics():
     return {"topics": get_topics()}
 
-
 @app.post("/generate-quiz")
 def generate_quiz_endpoint(req: GenerateQuizRequest):
     try:
-        questions = generate_quiz(req.topic)
+        quiz_id, questions = generate_quiz(req.topic)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    return {"topic": req.topic, "questions": questions}
-
+    return {"topic": req.topic, "quiz_id": quiz_id, "questions": questions}
 
 @app.post("/score")
 def score_quiz(req: ScoreRequest):
-    try:
-        answer_key = check_answers(req.topic, req.answers)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-    explanations = get_explanations(req.questions, answer_key)
-
+    result = db.get_quiz(req.quiz_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+    questions, answer_key = result
+    explanations = get_explanations(questions, answer_key)
     results = []
     score = 0
-    for q in req.questions:
+    for q in questions:
         qid = q["id"]
         correct_idx = answer_key.get(q["question"])
         chosen = req.answers.get(qid)
@@ -70,5 +59,9 @@ def score_quiz(req: ScoreRequest):
                 "explanation": explanations.get(q["question"], ""),
             }
         )
+    db.save_attempt(req.quiz_id, req.answers, score, len(questions))
+    return {"score": score, "total": len(questions), "results": results}
 
-    return {"score": score, "total": len(req.questions), "results": results}
+@app.get("/history")
+def get_history():
+    return {"history": db.list_history()}

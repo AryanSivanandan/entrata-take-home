@@ -1,8 +1,5 @@
-# Environment
 .env
 .env.*.local
-
-# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -10,8 +7,10 @@ __pycache__/
 venv/
 dist/
 build/
-
-# Editor
 .vscode/
 .idea/
 *.swp
+backend/quiz_history.db
+*.db
+*.sqlite
+*.sqlite3

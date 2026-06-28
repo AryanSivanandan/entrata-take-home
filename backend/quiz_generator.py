@@ -3,8 +3,7 @@ import re
 import urllib.parse
 import urllib.request
 from groq import Groq
-
-_answer_cache: dict[str, dict[str, int]] = {}
+import db
 
 _WIKIPEDIA_API = "https://en.wikipedia.org/api/rest_v1/page/summary/{}"
 _WIKIPEDIA_TIMEOUT = 5
@@ -95,18 +94,12 @@ Example:
     )
 
     answer_key = {q["question"]: q["answer"] for q in questions_data}
-    _answer_cache[topic.lower()] = answer_key
-
-    return [
+    questions = [
         {"id": i, "question": q["question"], "options": q["options"]}
         for i, q in enumerate(questions_data[:num_questions])
     ]
-
-def check_answers(topic: str, answers: dict[int, int]) -> dict:
-    key = topic.lower()
-    if key not in _answer_cache:
-        raise ValueError(f"No quiz found for topic {topic!r}. Generate a quiz first.")
-    return _answer_cache[key]
+    quiz_id = db.save_quiz(topic, questions, answer_key)
+    return quiz_id, questions
 
 def get_explanations(questions: list[dict], answer_key: dict[str, int]) -> dict[str, str]:
     items = [
