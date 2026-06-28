@@ -6,6 +6,25 @@ An AI-powered quiz generator. Give it a topic, it generates 5 multiple-choice qu
 
 <sub>Built for Entrata's take-home assignment: 5 multiple-choice questions per quiz, 4 options each, score and correct answers shown after submission. All three bonus features are implemented: Wikipedia-based retrieval for factual grounding, persistence for reviewing past quizzes, and per-question explanations after scoring.</sub>
 
+## Architecture
+
+```
+Browser (vanilla JS)
+      │
+      │  POST /generate-quiz        POST /score        GET /history
+      ▼
+FastAPI backend (main.py)
+      │
+      ├──────────────► Groq API (Llama 3.3 70B)
+      │                 generates questions + explanations
+      │
+      ├──────────────► Wikipedia REST API
+      │                 fetches factual grounding context
+      │
+      └──────────────► SQLite (quiz_history.db)
+                        stores quizzes + attempts, survives restarts
+```
+
 ## Screenshots
 
 **Topic input**
