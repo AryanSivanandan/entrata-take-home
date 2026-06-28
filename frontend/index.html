@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Builder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f6f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    #app {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      padding: 2rem;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h1 { font-size: 1.6rem; margin-bottom: 1.5rem; color: #2d3a8c; }
+    h2 { font-size: 1.1rem; margin-bottom: 1rem; color: #444; }
+
+    .row { display: flex; gap: .75rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+
+    select, button {
+      padding: .5rem .9rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: .95rem;
+      cursor: pointer;
+    }
+
+    button {
+      background: #2d3a8c;
+      color: #fff;
+      border-color: transparent;
+      font-weight: 600;
+      transition: background .15s;
+    }
+    button:hover { background: #1e2870; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+
+    .question-block { margin-bottom: 1.5rem; }
+    .question-block p { font-weight: 600; margin-bottom: .6rem; }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .4rem .6rem;
+      border-radius: 6px;
+      margin-bottom: .3rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color .1s, background .1s;
+    }
+    .option:hover { background: #f0f2ff; }
+    .option input[type="radio"] { cursor: pointer; }
+    .option.correct { background: #e6f9ed; border-color: #2ecc71; }
+    .option.wrong   { background: #fdecea; border-color: #e74c3c; }
+    .option.missed  { background: #fff8e1; border-color: #f39c12; }
+
+    .explanation {
+      margin-top: .5rem;
+      padding: .4rem .7rem;
+      border-left: 3px solid #2d3a8c;
+      background: #f5f6ff;
+      border-radius: 0 4px 4px 0;
+      font-size: .88rem;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    #topic-input {
+      flex: 1;
+      min-width: 160px;
+      padding: .5rem .9rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: .95rem;
+    }
+    #topic-input:focus { outline: none; border-color: #2d3a8c; box-shadow: 0 0 0 2px #d0d5f5; }
+
+    #score-banner {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    #score-banner.good  { background: #e6f9ed; color: #27ae60; }
+    #score-banner.ok    { background: #fff8e1; color: #d68910; }
+    #score-banner.low   { background: #fdecea; color: #c0392b; }
+
+    #error { color: #c0392b; margin-bottom: 1rem; display: none; }
+
+    .spinner {
+      border: 3px solid #e0e0e0;
+      border-top-color: #2d3a8c;
+      border-radius: 50%;
+      width: 24px; height: 24px;
+      animation: spin .7s linear infinite;
+      display: none;
+      margin: .5rem auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Quiz Builder</h1>
+
+    <div class="row">
+      <input id="topic-input" type="text" list="topics-list"
+             placeholder="e.g. Python, SQL, algorithms…" autocomplete="off" />
+      <datalist id="topics-list"></datalist>
+      <button id="start-btn">Generate Quiz</button>
+    </div>
+
+    <div id="error"></div>
+    <div class="spinner" id="spinner"></div>
+
+    <div id="score-banner"></div>
+    <form id="quiz-form" style="display:none">
+      <div id="questions-container"></div>
+      <button type="submit" id="submit-btn">Submit Answers</button>
+    </form>
+    <button id="retry-btn" style="display:none; margin-top:1rem">Try Again</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
