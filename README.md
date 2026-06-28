@@ -6,6 +6,20 @@ An AI-powered quiz generator. Give it a topic, it generates 5 multiple-choice qu
 
 <sub>Built for Entrata's take-home assignment: 5 multiple-choice questions per quiz, 4 options each, score and correct answers shown after submission. Two of the three bonus features are implemented: Wikipedia-based retrieval for factual grounding and per-question explanations after scoring. Result persistence (reviewing past quizzes) is not implemented.</sub>
 
+## Screenshots
+
+**Topic input**
+
+![Quiz Builder input screen](./screenshots/intro.png)
+
+**Generated quiz**
+
+![Generated quiz questions](./screenshots/questions.png)
+
+**Scored results with explanations**
+
+![Scored results with color-coded answers and explanations](./screenshots/results.png)
+
 ## Quick start
 
 ```bash
@@ -85,7 +99,4 @@ The tradeoff: it's keyed by topic string, lives only in process memory, and is l
 
 ## Two-stage generation
 
-Explanations are only generated after a quiz is submitted, not upfront, there is no point spending tokens explaining questions a user might never finish. When they are needed, all 5 are requested in a single batched call rather than 5 separate ones, which keeps both latency and cost down.
-
-
-<img width="2557" height="1357" alt="image" src="https://github.com/user-attachments/assets/41bb5a20-a5ee-4c6f-b89c-681bb73fc38b" />
+Explanations are only generated after a quiz is submitted, not upfront, there is no point spending tokens explaining questions a user might. never finish. When they are needed, all 5 are requested in a single batched call rather than 5 separate ones, which keeps both latency and cost down.
